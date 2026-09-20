@@ -195,6 +195,7 @@ void Settings::setDefaults()
 	mBoolMap["ScrapeOverWrite"] = true;	
 	mBoolMap["ScrapeManual"] = true;
 	mBoolMap["ScrapeMap"] = true;
+	mBoolMap["ScrapeCartridge"] = false;
 	mBoolMap["IgnoreGamelist"] = false;
 	mBoolMap["HideConsole"] = true;
 	mBoolMap["QuickSystemSelect"] = true;

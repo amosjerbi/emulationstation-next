@@ -1,0 +1,47 @@
+name: Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master, main]
+  pull_request:
+
+jobs:
+  linux:
+    runs-on: ubuntu-22.04
+    env:
+      SCREENSCRAPER_DEV_LOGIN: ${{ secrets.SCREENSCRAPER_DEV_LOGIN }}
+      SCREENSCRAPER_SOFTNAME: emulationstation-next
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential cmake gettext libasound2-dev libboost-all-dev \
+            libcurl4-openssl-dev libfreeimage-dev libfreetype6-dev \
+            libgl1-mesa-dev libint-dev libsdl2-dev libsdl2-mixer-dev \
+            libvlc-dev libvlccore-dev rapidjson-dev vlc-bin
+
+      - name: Require ScreenScraper developer credentials
+        if: github.event_name != 'pull_request'
+        run: test -n "$SCREENSCRAPER_DEV_LOGIN"
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --parallel 2
+
+      - name: Upload executable
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: emulationstation-linux-x86_64
+          path: emulationstation
+          if-no-files-found: error

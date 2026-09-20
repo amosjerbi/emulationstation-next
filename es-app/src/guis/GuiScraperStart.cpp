@@ -295,13 +295,8 @@ void GuiScraperStart::loadSettingsPage()
 	if (scrap->isMediaSupported(Scraper::ScraperMediaSource::Map))
 		addSwitch(_("MAP"), "ScrapeMap", true);
 
-	/*
-	if (scrap->isMediaSupported(Scraper::ScraperMediaSource::TitleShot))
-	addSwitch(_("SCRAPE TITLESHOT"), "ScrapeTitleShot", true);
-
 	if (scrap->isMediaSupported(Scraper::ScraperMediaSource::Cartridge))
-	addSwitch(_("SCRAPE CARTRIDGE"), "ScrapeCartridge", true);
-	*/
+		addSwitch(_("SUPPORT TEXTURE"), "ScrapeCartridge", false);
 
 	if (scrap->isMediaSupported(Scraper::ScraperMediaSource::Manual))
 		addSwitch(_("MANUAL"), "ScrapeManual", true);
