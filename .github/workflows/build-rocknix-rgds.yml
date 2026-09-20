@@ -2,6 +2,10 @@ name: Build ROCKNIX RG DS
 
 on:
   workflow_dispatch:
+  push:
+    branches: [master]
+    paths:
+      - .github/workflows/build-rocknix-rgds.yml
 
 permissions:
   contents: read
