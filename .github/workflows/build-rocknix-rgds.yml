@@ -72,7 +72,7 @@ jobs:
       - name: Collect RG DS executable
         run: |
           mkdir -p artifacts
-          executable=$(find rocknix/build.ROCKNIX-RK3566.aarch64 -type f -path '*/.install_pkg/usr/bin/emulationstation' -print -quit)
+          executable=$(find rocknix/build.ROCKNIX-RK3566.aarch64/install_pkg -type f -path '*/usr/bin/emulationstation' -print -quit)
           test -n "$executable"
           install -m 755 "$executable" artifacts/emulationstation
           file artifacts/emulationstation
