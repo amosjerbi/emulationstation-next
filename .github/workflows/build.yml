@@ -10,7 +10,6 @@ jobs:
   linux:
     runs-on: ubuntu-22.04
     env:
-      SCREENSCRAPER_DEV_LOGIN: ${{ secrets.SCREENSCRAPER_DEV_LOGIN }}
       SCREENSCRAPER_SOFTNAME: emulationstation-next
 
     steps:
@@ -27,10 +26,6 @@ jobs:
             libcurl4-openssl-dev libfreeimage-dev libfreetype6-dev \
             libgl1-mesa-dev libint-dev libsdl2-dev libsdl2-mixer-dev \
             libvlc-dev libvlccore-dev rapidjson-dev vlc-bin
-
-      - name: Require ScreenScraper developer credentials
-        if: github.event_name != 'pull_request'
-        run: test -n "$SCREENSCRAPER_DEV_LOGIN"
 
       - name: Configure
         run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release

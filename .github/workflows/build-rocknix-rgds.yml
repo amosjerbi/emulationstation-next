@@ -15,7 +15,6 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 360
     env:
-      SCREENSCRAPER_DEV_LOGIN: ${{ secrets.SCREENSCRAPER_DEV_LOGIN }}
       SCREENSCRAPER_SOFTNAME: emulationstation-next
 
     steps:
@@ -36,12 +35,10 @@ jobs:
           sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc
           docker system prune --all --force
 
-      - name: Configure ScreenScraper credentials
+      - name: Configure ScreenScraper application name
         run: |
-          test -n "$SCREENSCRAPER_DEV_LOGIN"
           mkdir -p "$HOME/.ROCKNIX"
           printf '%s\n' \
-            "export SCREENSCRAPER_DEV_LOGIN=$SCREENSCRAPER_DEV_LOGIN" \
             "export SCREENSCRAPER_SOFTNAME=$SCREENSCRAPER_SOFTNAME" \
             > "$HOME/.ROCKNIX/options"
           chmod 600 "$HOME/.ROCKNIX/options"

@@ -23,8 +23,6 @@
 
 using namespace PlatformIds;
 
-#if defined(SCREENSCRAPER_DEV_LOGIN)
-
 /**
 	List of systems and thein IDs from
 	https://www.screenscraper.fr/api/systemesListe.php?devid=xxx&devpassword=yyy&softname=zzz&output=XML
@@ -850,9 +848,16 @@ void ScreenScraperRequest::processGame(const pugi::xml_document& xmldoc, std::ve
 }
 
 std::string ScreenScraperRequest::ScreenScraperConfig::getGameSearchUrl(const std::string gameName, bool jeuRecherche) const
-{	
+{
+	std::string devId = Settings::getInstance()->getString("ScreenScraperDevId");
+	std::string devPass = Settings::getInstance()->getString("ScreenScraperDevPassword");
+	std::string devLogin = std::string(SCREENSCRAPER_DEV_LOGIN);
+
+	if (!devId.empty() && !devPass.empty())
+		devLogin = "devid=" + HttpReq::urlEncode(devId) + "&devpassword=" + HttpReq::urlEncode(devPass);
+
 	std::string ret = API_URL_BASE
-		+ "/jeuInfos.php?" + std::string(SCREENSCRAPER_DEV_LOGIN) +
+		+ "/jeuInfos.php?" + devLogin +
 		+ "&softname=" + HttpReq::urlEncode(VERSIONED_SOFT_NAME)
 		+ "&output=xml"
 		+ "&romnom=" + HttpReq::urlEncode(gameName);
@@ -860,7 +865,7 @@ std::string ScreenScraperRequest::ScreenScraperConfig::getGameSearchUrl(const st
 	if (jeuRecherche)
 	{
 		ret = std::string(API_URL_BASE)
-			+ "/jeuRecherche.php?" + std::string(SCREENSCRAPER_DEV_LOGIN) +
+			+ "/jeuRecherche.php?" + devLogin +
 			+ "&softname=" + HttpReq::urlEncode(VERSIONED_SOFT_NAME)
 			+ "&output=xml"
 			+ "&recherche=" + HttpReq::urlEncode(gameName);
@@ -877,8 +882,15 @@ std::string ScreenScraperRequest::ScreenScraperConfig::getGameSearchUrl(const st
 
 std::string ScreenScraperRequest::ScreenScraperConfig::getUserInfoUrl() const
 {
+	std::string devId = Settings::getInstance()->getString("ScreenScraperDevId");
+	std::string devPass = Settings::getInstance()->getString("ScreenScraperDevPassword");
+	std::string devLogin = std::string(SCREENSCRAPER_DEV_LOGIN);
+
+	if (!devId.empty() && !devPass.empty())
+		devLogin = "devid=" + HttpReq::urlEncode(devId) + "&devpassword=" + HttpReq::urlEncode(devPass);
+
 	std::string ret = API_URL_BASE
-		+ "/ssuserInfos.php?" + std::string(SCREENSCRAPER_DEV_LOGIN) +
+		+ "/ssuserInfos.php?" + devLogin +
 		+ "&softname=" + HttpReq::urlEncode(VERSIONED_SOFT_NAME)
 		+ "&output=xml";
 
@@ -989,5 +1001,3 @@ int ScreenScraperScraper::getThreadCount(std::string &result)
 
 	return 1;
 }
-
-#endif

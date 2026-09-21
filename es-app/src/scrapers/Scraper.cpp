@@ -22,9 +22,7 @@
 
 std::vector<std::pair<std::string, Scraper*>> Scraper::scrapers
 {
-#ifdef SCREENSCRAPER_DEV_LOGIN
 	{ "ScreenScraper", new ScreenScraperScraper() },
-#endif
 
 #ifdef GAMESDB_APIKEY
 	{ "TheGamesDB", new TheGamesDBScraper() },

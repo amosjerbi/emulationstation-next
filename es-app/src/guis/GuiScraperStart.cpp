@@ -335,6 +335,8 @@ void GuiScraperStart::loadAccountsPage()
 	addGroup(_("SCREENSCRAPER"));
 	addInputTextConfigRow(_("USERNAME"), "ScreenScraperUser", false, true);
 	addInputTextConfigRow(_("PASSWORD"), "ScreenScraperPass", true, true);
+	addInputTextConfigRow(_("DEVELOPER ID (OPTIONAL)"), "ScreenScraperDevId", false, true);
+	addInputTextConfigRow(_("DEVELOPER PASSWORD (OPTIONAL)"), "ScreenScraperDevPassword", true, true);
 
 	addGroup(_("IGDB"));
 	addInputTextConfigRow(_("CLIENT ID"), "IGDBClientID", false, true);

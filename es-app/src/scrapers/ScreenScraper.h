@@ -6,7 +6,13 @@
 #include "scrapers/Scraper.h"
 #include "EmulationStation.h"
 
-#if defined(SCREENSCRAPER_DEV_LOGIN)
+#ifndef SCREENSCRAPER_DEV_LOGIN
+#define SCREENSCRAPER_DEV_LOGIN ""
+#endif
+
+#ifndef SCREENSCRAPER_SOFTNAME
+#define SCREENSCRAPER_SOFTNAME "emulationstation-next"
+#endif
 
 #define VERSIONED_SOFT_NAME std::string(SCREENSCRAPER_SOFTNAME) + " " + static_cast<std::string>(PROGRAM_VERSION_STRING)
 
@@ -94,6 +100,4 @@ private:
 
 	std::string mFileName;
 };
-#endif
-
 #endif // ES_APP_SCRAPERS_SCREEN_SCRAPER_H
