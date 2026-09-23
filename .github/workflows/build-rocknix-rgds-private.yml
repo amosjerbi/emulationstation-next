@@ -1,0 +1,106 @@
+name: Build private ROCKNIX RG DS
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    env:
+      SCREENSCRAPER_DEV_LOGIN: ${{ secrets.SCREENSCRAPER_DEV_LOGIN }}
+      SCREENSCRAPER_SOFTNAME: emulationstation-next
+
+    steps:
+      - name: Check out EmulationStation
+        uses: actions/checkout@v4
+        with:
+          path: emulationstation
+          submodules: recursive
+
+      - name: Check out ROCKNIX
+        uses: actions/checkout@v4
+        with:
+          repository: ROCKNIX/distribution
+          path: rocknix
+
+      - name: Free runner disk space
+        run: |
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc
+          docker system prune --all --force
+
+      - name: Configure private ScreenScraper credentials
+        shell: bash
+        run: |
+          if [[ "$SCREENSCRAPER_DEV_LOGIN" != devid=* || "$SCREENSCRAPER_DEV_LOGIN" != *'&devpassword='* ]]; then
+            echo 'SCREENSCRAPER_DEV_LOGIN must contain devid and devpassword.' >&2
+            exit 1
+          fi
+
+          dev_id="${SCREENSCRAPER_DEV_LOGIN#devid=}"
+          dev_id="${dev_id%%&*}"
+          dev_password="${SCREENSCRAPER_DEV_LOGIN#*&devpassword=}"
+          if [[ -z "$dev_id" || -z "$dev_password" ]]; then
+            echo 'ScreenScraper developer ID and password must be nonempty.' >&2
+            exit 1
+          fi
+          echo "::add-mask::$dev_id"
+          echo "::add-mask::$dev_password"
+
+          mkdir -p "$HOME/.ROCKNIX"
+          printf '%s\n' \
+            "export SCREENSCRAPER_DEV_LOGIN=$SCREENSCRAPER_DEV_LOGIN" \
+            "export SCREENSCRAPER_SOFTNAME=$SCREENSCRAPER_SOFTNAME" \
+            > "$HOME/.ROCKNIX/options"
+          chmod 600 "$HOME/.ROCKNIX/options"
+
+      - name: Use this EmulationStation source
+        working-directory: rocknix
+        run: |
+          package=projects/ROCKNIX/packages/ui/emulationstation/package.mk
+          sed -i \
+            -e 's|^PKG_VERSION=.*|PKG_VERSION="github-rgds-private"|' \
+            -e '/^PKG_GIT_CLONE_BRANCH=/d' \
+            -e "s|^PKG_URL=.*|PKG_URL=\"file://$GITHUB_WORKSPACE/emulationstation\"|" \
+            -e 's|^GET_HANDLER_SUPPORT=.*|GET_HANDLER_SUPPORT="file"|' \
+            -e 's|echo "USING: ${key} = ${!key}"|echo "USING: ${key} is set."|' \
+            "$package"
+
+      - name: Build ROCKNIX RK3566 package
+        working-directory: rocknix
+        env:
+          PROJECT: ROCKNIX
+          DEVICE: RK3566
+          DEVICE_ROOT: RK3566
+          ARCH: aarch64
+          PACKAGE: emulationstation
+          EMULATIONSTATION_SRC: ${{ github.workspace }}/emulationstation
+        run: make docker-package
+
+      - name: Collect RG DS executable
+        run: |
+          mkdir -p private-raw private-artifact
+          executable=$(find rocknix/build.ROCKNIX-RK3566.aarch64/install_pkg -type f -path '*/usr/bin/emulationstation' -print -quit)
+          test -n "$executable"
+          install -m 755 "$executable" private-raw/emulationstation
+          (cd private-raw && sha256sum emulationstation) > private-artifact/emulationstation.sha256
+
+      - name: Encrypt private executable
+        run: |
+          openssl cms -encrypt -binary -aes-256-gcm \
+            -in private-raw/emulationstation \
+            -outform DER \
+            -out private-artifact/emulationstation.cms \
+            emulationstation/.github/keys/screenscraper-build-recipient.pem
+          test -s private-artifact/emulationstation.cms
+
+      - name: Upload encrypted RG DS build
+        uses: actions/upload-artifact@v4
+        with:
+          name: emulationstation-rocknix-rgds-private
+          path: private-artifact/
+          if-no-files-found: error
+          retention-days: 14

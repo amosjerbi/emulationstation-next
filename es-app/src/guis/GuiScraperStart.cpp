@@ -63,7 +63,10 @@ void GuiScraperStart::loadScrapPage()
 
 	// Select either the first entry of the one read from the settings, just in case the scraper from settings has vanished.
 	for (auto engine : Scraper::getScraperList())
-		scraper_list->add(engine, engine, engine == scraperName);
+	{
+		const std::string label = engine == "ArcadeDB" ? _("ARCADEDB (ARCADE, NO LOGIN)") : engine;
+		scraper_list->add(label, engine, engine == scraperName);
+	}
 
 
 	addGroup(_("SOURCE"));
@@ -335,8 +338,8 @@ void GuiScraperStart::loadAccountsPage()
 	addGroup(_("SCREENSCRAPER"));
 	addInputTextConfigRow(_("USERNAME"), "ScreenScraperUser", false, true);
 	addInputTextConfigRow(_("PASSWORD"), "ScreenScraperPass", true, true);
-	addInputTextConfigRow(_("DEVELOPER ID (OPTIONAL)"), "ScreenScraperDevId", false, true);
-	addInputTextConfigRow(_("DEVELOPER PASSWORD (OPTIONAL)"), "ScreenScraperDevPassword", true, true);
+	addInputTextConfigRow(_("DEVELOPER ID (IF NOT BUILT IN)"), "ScreenScraperDevId", false, true);
+	addInputTextConfigRow(_("DEVELOPER PASSWORD (IF NOT BUILT IN)"), "ScreenScraperDevPassword", true, true);
 
 	addGroup(_("IGDB"));
 	addInputTextConfigRow(_("CLIENT ID"), "IGDBClientID", false, true);
